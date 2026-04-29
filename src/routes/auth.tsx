@@ -45,13 +45,15 @@ function AuthPage() {
         <div>
           <h1 className="text-2xl font-bold tracking-tight md:text-3xl">Account</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            Register or sign in to save your signature counts to Firebase.
+            Register or sign in to save employees, templates, company assets, and signature counts.
           </p>
         </div>
 
         <Card className="p-6">
           {loading ? (
-            <div className="py-10 text-center text-sm text-muted-foreground">Checking session...</div>
+            <div className="py-10 text-center text-sm text-muted-foreground">
+              Checking session...
+            </div>
           ) : user ? (
             <div className="space-y-5">
               <div className="flex items-center gap-3">
@@ -81,7 +83,12 @@ function AuthPage() {
             </div>
           ) : (
             <div className="space-y-5">
-              <Button className="w-full" variant="outline" onClick={() => runAuth("google")} disabled={busy}>
+              <Button
+                className="w-full"
+                variant="outline"
+                onClick={() => runAuth("google")}
+                disabled={busy}
+              >
                 <Shield className="h-4 w-4" /> Continue with Google
               </Button>
 
