@@ -28,7 +28,7 @@ import {
 } from "@/components/ui/table";
 
 export const Route = createFileRoute("/employees")({
-  head: () => ({ meta: [{ title: "Employees — SigForge" }] }),
+  head: () => ({ meta: [{ title: "Employees — SignForge" }] }),
   component: EmployeesPage,
 });
 

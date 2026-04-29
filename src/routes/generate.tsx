@@ -23,7 +23,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { Employee } from "@/lib/types";
 
 export const Route = createFileRoute("/generate")({
-  head: () => ({ meta: [{ title: "Generate — SigForge" }] }),
+  head: () => ({ meta: [{ title: "Generate — SignForge" }] }),
   component: GeneratePage,
 });
 

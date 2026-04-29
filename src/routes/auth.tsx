@@ -11,7 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from "@/hooks/useAuth";
 
 export const Route = createFileRoute("/auth")({
-  head: () => ({ meta: [{ title: "Account - SigForge" }] }),
+  head: () => ({ meta: [{ title: "Account - SignForge" }] }),
   component: AuthPage,
 });
 

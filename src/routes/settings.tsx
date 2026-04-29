@@ -11,7 +11,7 @@ import { useRef } from "react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/settings")({
-  head: () => ({ meta: [{ title: "Settings — SigForge" }] }),
+  head: () => ({ meta: [{ title: "Settings — SignForge" }] }),
   component: SettingsPage,
 });
 

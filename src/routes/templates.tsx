@@ -14,7 +14,7 @@ import { useRef, useState } from "react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/templates")({
-  head: () => ({ meta: [{ title: "Templates — SigForge" }] }),
+  head: () => ({ meta: [{ title: "Templates — SignForge" }] }),
   component: TemplatesPage,
 });
 

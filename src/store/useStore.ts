@@ -36,7 +36,7 @@ export const useStore = create<AppState>()(
     (set, get) => ({
       employees: [],
       templates: [
-        { id: "default", name: "SigForge Blue", html: DEFAULT_TEMPLATE, createdAt: Date.now() },
+        { id: "default", name: "SignForge Blue", html: DEFAULT_TEMPLATE, createdAt: Date.now() },
       ],
       activeTemplateId: "default",
       assets: { companyName: "Acme Inc.", website: "https://acme.com" },
@@ -112,7 +112,7 @@ export const useStore = create<AppState>()(
           templates: state.templates.map((template) =>
             template.id === "default" &&
             (template.name === "Classic Purple" || template.html.includes("#7c3aed"))
-              ? { ...template, name: "SigForge Blue", html: DEFAULT_TEMPLATE }
+              ? { ...template, name: "SignForge Blue", html: DEFAULT_TEMPLATE }
               : template,
           ),
         };

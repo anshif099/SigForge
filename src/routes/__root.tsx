@@ -33,7 +33,7 @@ export const Route = createRootRoute({
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "SigForge — Email Signatures at Scale" },
+      { title: "SignForge — Email Signatures at Scale" },
       { name: "description", content: "Generate personalized email signatures for your entire team from a single template." },
     ],
     links: [

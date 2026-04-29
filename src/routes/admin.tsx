@@ -21,12 +21,12 @@ import { Label } from "@/components/ui/label";
 import { database } from "@/lib/firebase";
 
 export const Route = createFileRoute("/admin")({
-  head: () => ({ meta: [{ title: "Admin - SigForge" }] }),
+  head: () => ({ meta: [{ title: "Admin - SignForge" }] }),
   component: AdminPage,
 });
 
-const ADMIN_EMAIL = "admin@sigforge.com";
-const ADMIN_PASSWORD = "SigForge@2026";
+const ADMIN_EMAIL = "admin@signforge.com";
+const ADMIN_PASSWORD = "SignForge@2026";
 
 interface UserRecord {
   profile?: {
@@ -70,7 +70,7 @@ function AdminPage() {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    setIsAdmin(sessionStorage.getItem("sigforge-admin") === "1");
+    setIsAdmin(sessionStorage.getItem("signforge-admin") === "1");
   }, []);
 
   useEffect(() => {
@@ -166,7 +166,7 @@ function AdminPage() {
 
   function login() {
     if (email.trim() === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
-      sessionStorage.setItem("sigforge-admin", "1");
+      sessionStorage.setItem("signforge-admin", "1");
       setIsAdmin(true);
       setPassword("");
       setError("");
@@ -224,7 +224,7 @@ function AdminPage() {
           <Button
             variant="outline"
             onClick={() => {
-              sessionStorage.removeItem("sigforge-admin");
+              sessionStorage.removeItem("signforge-admin");
               setIsAdmin(false);
             }}
           >
