@@ -9,7 +9,7 @@ import { useStore } from "@/store/useStore";
 import { SignaturePreview } from "@/components/SignaturePreview";
 import { renderTemplate, slugify, extractPlaceholders, extractImageSlots } from "@/lib/template-engine";
 import { useMemo, useRef, useState } from "react";
-import { Copy, Download, Package, Users, Phone, Plus, X, Upload, Image as ImageIcon } from "lucide-react";
+import { Copy, Download, Package, Users, Phone, Plus, X, Upload, Image as ImageIcon, ChevronDown, ChevronUp } from "lucide-react";
 import { toast } from "sonner";
 import JSZip from "jszip";
 import {
@@ -57,6 +57,7 @@ function GeneratePage() {
   const { templates, activeTemplateId, setActiveTemplate, assets, employees, recordGenerations } = useStore();
   const active = templates.find((t) => t.id === activeTemplateId) ?? templates[0];
   const [form, setForm] = useState<Omit<Employee, "id">>(blank);
+  const [showAllBulkPreviews, setShowAllBulkPreviews] = useState(false);
 
   const html = useMemo(
     () => (active ? renderTemplate(active.html, form, assets) : ""),
@@ -447,15 +448,31 @@ function GeneratePage() {
 
               {employees.length > 0 && (
                 <div className="mt-6 grid gap-4 md:grid-cols-2">
-                  {employees.slice(0, 4).map((e) => (
+                  {(showAllBulkPreviews ? employees : employees.slice(0, 4)).map((e) => (
                     <div key={e.id} className="border rounded-lg p-3 bg-muted/30">
                       <div className="text-xs font-medium text-muted-foreground mb-2">{e.name}</div>
                       <SignaturePreview template={active.html} employee={e} assets={assets} />
                     </div>
                   ))}
                   {employees.length > 4 && (
-                    <div className="text-xs text-muted-foreground col-span-full text-center">
-                      + {employees.length - 4} more
+                    <div className="col-span-full flex justify-center">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setShowAllBulkPreviews((show) => !show)}
+                        aria-expanded={showAllBulkPreviews}
+                      >
+                        {showAllBulkPreviews ? (
+                          <>
+                            <ChevronUp className="h-4 w-4 mr-2" /> Show fewer
+                          </>
+                        ) : (
+                          <>
+                            <ChevronDown className="h-4 w-4 mr-2" /> View {employees.length - 4} more
+                          </>
+                        )}
+                      </Button>
                     </div>
                   )}
                 </div>
