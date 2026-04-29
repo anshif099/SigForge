@@ -22,6 +22,10 @@ export interface CompanyAssets {
   logoDataUrl?: string;
   companyName?: string;
   website?: string;
+  brandPalette?: {
+    primary: string;
+    secondary: string;
+  };
 }
 
 export interface GenerationRecord {

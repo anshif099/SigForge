@@ -1,4 +1,5 @@
 import { Outlet, Link, createRootRoute, HeadContent, Scripts } from "@tanstack/react-router";
+import { BrandThemeSync } from "@/components/BrandThemeSync";
 import { FirebaseSync } from "@/components/FirebaseSync";
 import { Toaster } from "@/components/ui/sonner";
 import { AuthProvider } from "@/hooks/useAuth";
@@ -34,7 +35,11 @@ export const Route = createRootRoute({
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { title: "SignForge — Email Signatures at Scale" },
-      { name: "description", content: "Generate personalized email signatures for your entire team from a single template." },
+      {
+        name: "description",
+        content:
+          "Generate personalized email signatures for your entire team from a single template.",
+      },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
@@ -64,6 +69,7 @@ function RootComponent() {
   return (
     <AuthProvider>
       <FirebaseSync />
+      <BrandThemeSync />
       <Outlet />
       <Toaster />
     </AuthProvider>

@@ -65,6 +65,7 @@ function hasSavedContent(workspace: WorkspaceSnapshot) {
         template.html !== DEFAULT_TEMPLATE,
     ) ||
     Boolean(workspace.assets.logoDataUrl) ||
+    Boolean(workspace.assets.brandPalette) ||
     workspace.assets.companyName !== DEFAULT_ASSETS.companyName ||
     workspace.assets.website !== DEFAULT_ASSETS.website
   );
