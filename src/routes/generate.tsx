@@ -7,9 +7,26 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useStore } from "@/store/useStore";
 import { SignaturePreview } from "@/components/SignaturePreview";
-import { renderTemplate, slugify, extractPlaceholders, extractImageSlots } from "@/lib/template-engine";
+import {
+  renderTemplate,
+  slugify,
+  extractPlaceholders,
+  extractImageSlots,
+} from "@/lib/template-engine";
 import { useMemo, useRef, useState } from "react";
-import { Copy, Download, Package, Users, Phone, Plus, X, Upload, Image as ImageIcon, ChevronDown, ChevronUp } from "lucide-react";
+import {
+  Copy,
+  Download,
+  Package,
+  Users,
+  Phone,
+  Plus,
+  X,
+  Upload,
+  Image as ImageIcon,
+  ChevronDown,
+  ChevronUp,
+} from "lucide-react";
 import { toast } from "sonner";
 import JSZip from "jszip";
 import {
@@ -54,7 +71,8 @@ function wrapHtml(inner: string): string {
 }
 
 function GeneratePage() {
-  const { templates, activeTemplateId, setActiveTemplate, assets, employees, recordGenerations } = useStore();
+  const { templates, activeTemplateId, setActiveTemplate, assets, employees, recordGenerations } =
+    useStore();
   const active = templates.find((t) => t.id === activeTemplateId) ?? templates[0];
   const [form, setForm] = useState<Omit<Employee, "id">>(blank);
   const [showAllBulkPreviews, setShowAllBulkPreviews] = useState(false);
@@ -94,7 +112,7 @@ function GeneratePage() {
   const logoInputRefs = useRef<Record<string, HTMLInputElement | null>>({});
 
   function getLogoValue(key: string) {
-    return form.extra?.[key] ?? (key === "logo_1" ? form.logoDataUrl ?? "" : "");
+    return form.extra?.[key] ?? (key === "logo_1" ? (form.logoDataUrl ?? "") : "");
   }
 
   function setLogoValue(key: string, value: string) {
@@ -200,287 +218,310 @@ function GeneratePage() {
   return (
     <RequireAuth>
       <Layout>
-      <div className="max-w-7xl mx-auto space-y-6">
-        <div className="flex items-start justify-between flex-wrap gap-4">
-          <div>
-            <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Generate signatures</h1>
-            <p className="text-sm text-muted-foreground mt-1">
-              Live preview · Single or bulk export
-            </p>
+        <div className="mx-auto w-full max-w-[1540px] space-y-6">
+          <div className="flex items-start justify-between flex-wrap gap-4">
+            <div>
+              <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Generate signatures</h1>
+              <p className="text-sm text-muted-foreground mt-1">
+                Live preview · Single or bulk export
+              </p>
+            </div>
+            <div className="min-w-[220px]">
+              <Label className="text-xs">Template</Label>
+              <Select value={active.id} onValueChange={setActiveTemplate}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {templates.map((t) => (
+                    <SelectItem key={t.id} value={t.id}>
+                      {t.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
-          <div className="min-w-[220px]">
-            <Label className="text-xs">Template</Label>
-            <Select value={active.id} onValueChange={setActiveTemplate}>
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {templates.map((t) => (
-                  <SelectItem key={t.id} value={t.id}>{t.name}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
 
-        <Tabs defaultValue="single">
-          <TabsList>
-            <TabsTrigger value="single">Single</TabsTrigger>
-            <TabsTrigger value="bulk">
-              <Users className="h-3.5 w-3.5 mr-1.5" /> Bulk ({employees.length})
-            </TabsTrigger>
-          </TabsList>
+          <Tabs defaultValue="single">
+            <TabsList>
+              <TabsTrigger value="single">Single</TabsTrigger>
+              <TabsTrigger value="bulk">
+                <Users className="h-3.5 w-3.5 mr-1.5" /> Bulk ({employees.length})
+              </TabsTrigger>
+            </TabsList>
 
-          <TabsContent value="single" className="mt-4">
-            <div className="grid gap-6 lg:grid-cols-2">
-              <Card className="p-6 space-y-4">
-                <h3 className="text-sm font-semibold">Details</h3>
-                <div>
-                  <Label>Name</Label>
-                  <Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
-                </div>
-                <div>
-                  <Label>Designation</Label>
-                  <Input value={form.designation} onChange={(e) => setForm({ ...form, designation: e.target.value })} />
-                </div>
-                <div>
-                  <Label>Division label</Label>
-                  <Input
-                    value={form.extra?.divisionLabel ?? ""}
-                    onChange={(e) => setExtra("divisionLabel", e.target.value)}
-                    placeholder="A Division of"
-                  />
-                </div>
-                <div>
-                  <Label>Email</Label>
-                  <Input type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
-                </div>
-                <div>
-                  <Label>Phones</Label>
-                  <div className="space-y-2">
-                    {form.phones.map((p, i) => (
-                      <div key={i} className="flex gap-2">
-                        <div className="flex-1 relative">
-                          <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
-                          <Input
-                            className="pl-9"
-                            value={p}
-                            onChange={(e) => {
-                              const phones = [...form.phones];
-                              phones[i] = e.target.value;
-                              setForm({ ...form, phones });
-                            }}
-                          />
-                        </div>
-                        {form.phones.length > 1 && (
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() =>
-                              setForm({ ...form, phones: form.phones.filter((_, idx) => idx !== i) })
-                            }
-                          >
-                            <X className="h-4 w-4" />
-                          </Button>
-                        )}
-                      </div>
-                    ))}
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setForm({ ...form, phones: [...form.phones, ""] })}
-                    >
-                      <Plus className="h-3.5 w-3.5 mr-1" /> Add phone
-                    </Button>
+            <TabsContent value="single" className="mt-4">
+              <div className="grid min-w-0 gap-6 xl:grid-cols-[minmax(320px,420px)_minmax(0,1fr)]">
+                <Card className="p-6 space-y-4">
+                  <h3 className="text-sm font-semibold">Details</h3>
+                  <div>
+                    <Label>Name</Label>
+                    <Input
+                      value={form.name}
+                      onChange={(e) => setForm({ ...form, name: e.target.value })}
+                    />
                   </div>
-                </div>
-                <div>
-                  <Label>Mobile</Label>
-                  <Input
-                    value={form.mobile ?? ""}
-                    onChange={(e) => setForm({ ...form, mobile: e.target.value })}
-                    placeholder="+1 (555) 000-0000"
-                  />
-                </div>
-                <div>
-                  <Label>Address</Label>
-                  <Input value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} />
-                </div>
-                <div>
-                  <Label>Website</Label>
-                  <Input
-                    value={form.website ?? ""}
-                    onChange={(e) => setForm({ ...form, website: e.target.value })}
-                    placeholder="https://example.com"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>Logos</Label>
-                  <div className="space-y-2">
-                    {logoSlots.map((slot) => {
-                      const uploadedLogo = getLogoValue(slot.key);
-                      const templateLogo = slot.src && !slot.src.includes("{{") ? slot.src : "";
-                      const companyLogo = slot.key === "logo_1" ? assets.logoDataUrl ?? "" : "";
-                      const previewLogo = uploadedLogo || templateLogo || companyLogo;
-                      const status = uploadedLogo
-                        ? "Uploaded logo"
-                        : templateLogo
-                          ? "Template logo"
-                          : companyLogo
-                            ? "Company logo"
-                            : "No logo selected";
-
-                      return (
-                        <div
-                          key={slot.key}
-                          className="flex items-center gap-3 rounded-md border border-input bg-background p-2"
-                        >
-                          <input
-                            ref={(node) => {
-                              logoInputRefs.current[slot.key] = node;
-                            }}
-                            type="file"
-                            accept="image/*"
-                            hidden
-                            onChange={(e) => handleLogoUpload(slot.key, slot.label, e)}
-                          />
-                          <div className="flex h-10 w-14 shrink-0 items-center justify-center overflow-hidden rounded border bg-card">
-                            {previewLogo ? (
-                              <img
-                                src={previewLogo}
-                                alt={slot.label}
-                                className="max-h-full max-w-full object-contain"
-                              />
-                            ) : (
-                              <ImageIcon className="h-4 w-4 text-muted-foreground" />
-                            )}
+                  <div>
+                    <Label>Designation</Label>
+                    <Input
+                      value={form.designation}
+                      onChange={(e) => setForm({ ...form, designation: e.target.value })}
+                    />
+                  </div>
+                  <div>
+                    <Label>Division label</Label>
+                    <Input
+                      value={form.extra?.divisionLabel ?? ""}
+                      onChange={(e) => setExtra("divisionLabel", e.target.value)}
+                      placeholder="A Division of"
+                    />
+                  </div>
+                  <div>
+                    <Label>Email</Label>
+                    <Input
+                      type="email"
+                      value={form.email}
+                      onChange={(e) => setForm({ ...form, email: e.target.value })}
+                    />
+                  </div>
+                  <div>
+                    <Label>Phones</Label>
+                    <div className="space-y-2">
+                      {form.phones.map((p, i) => (
+                        <div key={i} className="flex gap-2">
+                          <div className="flex-1 relative">
+                            <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+                            <Input
+                              className="pl-9"
+                              value={p}
+                              onChange={(e) => {
+                                const phones = [...form.phones];
+                                phones[i] = e.target.value;
+                                setForm({ ...form, phones });
+                              }}
+                            />
                           </div>
-                          <div className="min-w-0 flex-1">
-                            <div className="text-xs font-medium">{slot.label}</div>
-                            <div className="truncate text-[11px] text-muted-foreground">{status}</div>
-                          </div>
-                          <Button
-                            type="button"
-                            variant="outline"
-                            size="sm"
-                            onClick={() => logoInputRefs.current[slot.key]?.click()}
-                          >
-                            <Upload className="h-3.5 w-3.5 mr-1.5" /> Upload
-                          </Button>
-                          {uploadedLogo && (
+                          {form.phones.length > 1 && (
                             <Button
-                              type="button"
                               variant="ghost"
                               size="icon"
-                              onClick={() => clearLogoValue(slot.key)}
-                              aria-label={`Remove ${slot.label}`}
+                              onClick={() =>
+                                setForm({
+                                  ...form,
+                                  phones: form.phones.filter((_, idx) => idx !== i),
+                                })
+                              }
                             >
-                              <X className="h-3.5 w-3.5" />
+                              <X className="h-4 w-4" />
                             </Button>
                           )}
                         </div>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                {templatePlaceholders
-                  .filter(
-                    (k) =>
-                      ![
-                        "name",
-                        "designation",
-                        "email",
-                        "phone",
-                        "mobile",
-                        "address",
-                        "website",
-                        "logo",
-                        "divisionLabel",
-                        "companyName",
-                      ].includes(k) && !/^logo(?:_\d+)?$/.test(k),
-                  )
-                  .map((key) => (
-                    <div key={key}>
-                      <Label className="capitalize">{key.replace(/_/g, " ")}</Label>
-                      <Input
-                        value={form.extra?.[key] ?? ""}
-                        onChange={(e) => setExtra(key, e.target.value)}
-                      />
-                    </div>
-                  ))}
-              </Card>
-
-              <div className="space-y-4">
-                <Card className="p-6">
-                  <h3 className="text-sm font-semibold mb-3">Preview</h3>
-                  <SignaturePreview template={active.html} employee={form} assets={assets} />
-                </Card>
-
-                <div className="flex flex-wrap gap-2">
-                  <Button onClick={copyRich}>
-                    <Copy className="h-4 w-4 mr-2" /> Copy signature
-                  </Button>
-                  <Button variant="outline" onClick={copyHtml}>
-                    Copy HTML
-                  </Button>
-                  <Button variant="outline" onClick={downloadOne}>
-                    <Download className="h-4 w-4 mr-2" /> Download .html
-                  </Button>
-                </div>
-              </div>
-            </div>
-          </TabsContent>
-
-          <TabsContent value="bulk" className="mt-4">
-            <Card className="p-6">
-              <div className="flex items-start justify-between flex-wrap gap-4">
-                <div>
-                  <h3 className="font-semibold">Generate for all employees</h3>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    Produces one .html file per employee, zipped.
-                  </p>
-                </div>
-                <Button onClick={downloadZip} disabled={employees.length === 0}>
-                  <Package className="h-4 w-4 mr-2" /> Download ZIP ({employees.length})
-                </Button>
-              </div>
-
-              {employees.length > 0 && (
-                <div className="mt-6 grid gap-4 md:grid-cols-2">
-                  {(showAllBulkPreviews ? employees : employees.slice(0, 4)).map((e) => (
-                    <div key={e.id} className="border rounded-lg p-3 bg-muted/30">
-                      <div className="text-xs font-medium text-muted-foreground mb-2">{e.name}</div>
-                      <SignaturePreview template={active.html} employee={e} assets={assets} />
-                    </div>
-                  ))}
-                  {employees.length > 4 && (
-                    <div className="col-span-full flex justify-center">
+                      ))}
                       <Button
-                        type="button"
                         variant="outline"
                         size="sm"
-                        onClick={() => setShowAllBulkPreviews((show) => !show)}
-                        aria-expanded={showAllBulkPreviews}
+                        onClick={() => setForm({ ...form, phones: [...form.phones, ""] })}
                       >
-                        {showAllBulkPreviews ? (
-                          <>
-                            <ChevronUp className="h-4 w-4 mr-2" /> Show fewer
-                          </>
-                        ) : (
-                          <>
-                            <ChevronDown className="h-4 w-4 mr-2" /> View {employees.length - 4} more
-                          </>
-                        )}
+                        <Plus className="h-3.5 w-3.5 mr-1" /> Add phone
                       </Button>
                     </div>
-                  )}
+                  </div>
+                  <div>
+                    <Label>Mobile</Label>
+                    <Input
+                      value={form.mobile ?? ""}
+                      onChange={(e) => setForm({ ...form, mobile: e.target.value })}
+                      placeholder="+1 (555) 000-0000"
+                    />
+                  </div>
+                  <div>
+                    <Label>Address</Label>
+                    <Input
+                      value={form.address}
+                      onChange={(e) => setForm({ ...form, address: e.target.value })}
+                    />
+                  </div>
+                  <div>
+                    <Label>Website</Label>
+                    <Input
+                      value={form.website ?? ""}
+                      onChange={(e) => setForm({ ...form, website: e.target.value })}
+                      placeholder="https://example.com"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Logos</Label>
+                    <div className="space-y-2">
+                      {logoSlots.map((slot) => {
+                        const uploadedLogo = getLogoValue(slot.key);
+                        const templateLogo = slot.src && !slot.src.includes("{{") ? slot.src : "";
+                        const companyLogo = slot.key === "logo_1" ? (assets.logoDataUrl ?? "") : "";
+                        const previewLogo = uploadedLogo || templateLogo || companyLogo;
+                        const status = uploadedLogo
+                          ? "Uploaded logo"
+                          : templateLogo
+                            ? "Template logo"
+                            : companyLogo
+                              ? "Company logo"
+                              : "No logo selected";
+
+                        return (
+                          <div
+                            key={slot.key}
+                            className="flex items-center gap-3 rounded-md border border-input bg-background p-2"
+                          >
+                            <input
+                              ref={(node) => {
+                                logoInputRefs.current[slot.key] = node;
+                              }}
+                              type="file"
+                              accept="image/*"
+                              hidden
+                              onChange={(e) => handleLogoUpload(slot.key, slot.label, e)}
+                            />
+                            <div className="flex h-10 w-14 shrink-0 items-center justify-center overflow-hidden rounded border bg-card">
+                              {previewLogo ? (
+                                <img
+                                  src={previewLogo}
+                                  alt={slot.label}
+                                  className="max-h-full max-w-full object-contain"
+                                />
+                              ) : (
+                                <ImageIcon className="h-4 w-4 text-muted-foreground" />
+                              )}
+                            </div>
+                            <div className="min-w-0 flex-1">
+                              <div className="text-xs font-medium">{slot.label}</div>
+                              <div className="truncate text-[11px] text-muted-foreground">
+                                {status}
+                              </div>
+                            </div>
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              onClick={() => logoInputRefs.current[slot.key]?.click()}
+                            >
+                              <Upload className="h-3.5 w-3.5 mr-1.5" /> Upload
+                            </Button>
+                            {uploadedLogo && (
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => clearLogoValue(slot.key)}
+                                aria-label={`Remove ${slot.label}`}
+                              >
+                                <X className="h-3.5 w-3.5" />
+                              </Button>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {templatePlaceholders
+                    .filter(
+                      (k) =>
+                        ![
+                          "name",
+                          "designation",
+                          "email",
+                          "phone",
+                          "mobile",
+                          "address",
+                          "website",
+                          "logo",
+                          "divisionLabel",
+                          "companyName",
+                        ].includes(k) && !/^logo(?:_\d+)?$/.test(k),
+                    )
+                    .map((key) => (
+                      <div key={key}>
+                        <Label className="capitalize">{key.replace(/_/g, " ")}</Label>
+                        <Input
+                          value={form.extra?.[key] ?? ""}
+                          onChange={(e) => setExtra(key, e.target.value)}
+                        />
+                      </div>
+                    ))}
+                </Card>
+
+                <div className="min-w-0 space-y-4">
+                  <Card className="min-w-0 overflow-hidden p-4 sm:p-6">
+                    <h3 className="text-sm font-semibold mb-3">Preview</h3>
+                    <SignaturePreview template={active.html} employee={form} assets={assets} />
+                  </Card>
+
+                  <div className="flex flex-wrap gap-2">
+                    <Button onClick={copyRich}>
+                      <Copy className="h-4 w-4 mr-2" /> Copy signature
+                    </Button>
+                    <Button variant="outline" onClick={copyHtml}>
+                      Copy HTML
+                    </Button>
+                    <Button variant="outline" onClick={downloadOne}>
+                      <Download className="h-4 w-4 mr-2" /> Download .html
+                    </Button>
+                  </div>
                 </div>
-              )}
-            </Card>
-          </TabsContent>
-        </Tabs>
-      </div>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="bulk" className="mt-4">
+              <Card className="overflow-hidden p-4 sm:p-6">
+                <div className="flex items-start justify-between flex-wrap gap-4">
+                  <div>
+                    <h3 className="font-semibold">Generate for all employees</h3>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      Produces one .html file per employee, zipped.
+                    </p>
+                  </div>
+                  <Button onClick={downloadZip} disabled={employees.length === 0}>
+                    <Package className="h-4 w-4 mr-2" /> Download ZIP ({employees.length})
+                  </Button>
+                </div>
+
+                {employees.length > 0 && (
+                  <div className="mt-6 grid gap-4">
+                    {(showAllBulkPreviews ? employees : employees.slice(0, 4)).map((e) => (
+                      <div key={e.id} className="overflow-hidden rounded-lg border bg-muted/30 p-3">
+                        <div className="text-xs font-medium text-muted-foreground mb-2">
+                          {e.name}
+                        </div>
+                        <SignaturePreview template={active.html} employee={e} assets={assets} />
+                      </div>
+                    ))}
+                    {employees.length > 4 && (
+                      <div className="col-span-full flex justify-center">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setShowAllBulkPreviews((show) => !show)}
+                          aria-expanded={showAllBulkPreviews}
+                        >
+                          {showAllBulkPreviews ? (
+                            <>
+                              <ChevronUp className="h-4 w-4 mr-2" /> Show fewer
+                            </>
+                          ) : (
+                            <>
+                              <ChevronDown className="h-4 w-4 mr-2" /> View {employees.length - 4}{" "}
+                              more
+                            </>
+                          )}
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </Card>
+            </TabsContent>
+          </Tabs>
+        </div>
       </Layout>
     </RequireAuth>
   );
