@@ -86,114 +86,134 @@ function TemplatesPage() {
   return (
     <RequireAuth>
       <Layout>
-      <div className="max-w-7xl mx-auto space-y-6">
-        <div className="flex items-start justify-between flex-wrap gap-4">
-          <div>
-            <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Templates</h1>
-            <p className="text-sm text-muted-foreground mt-1">
-              Upload HTML or an image. Use placeholders like <code className="px-1 rounded bg-muted">{'{{name}}'}</code>,{" "}
-              <code className="px-1 rounded bg-muted">{'{{email}}'}</code>.
-            </p>
-          </div>
-          <div>
-            <input ref={fileRef} type="file" accept=".html,image/*" hidden onChange={handleFile} />
-            <Button onClick={() => fileRef.current?.click()}>
-              <Upload className="h-4 w-4 mr-2" /> Upload template
-            </Button>
-          </div>
-        </div>
-
-        <div className="grid gap-6 lg:grid-cols-[320px,1fr]">
-          <div className="space-y-2">
-            {templates.map((t) => {
-              const isImg = t.html.includes("data:image");
-              const Icon = isImg ? ImageIcon : FileCode2;
-              const isActive = active?.id === t.id;
-              return (
-                <button
-                  key={t.id}
-                  onClick={() => setActiveTemplate(t.id)}
-                  className={`w-full text-left p-4 rounded-lg border transition-all ${
-                    isActive
-                      ? "border-primary bg-accent shadow-sm"
-                      : "border-border bg-card hover:border-primary/50"
-                  }`}
-                >
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="flex items-center gap-2 min-w-0">
-                      <Icon className="h-4 w-4 shrink-0 text-primary" />
-                      <span className="text-sm font-medium truncate">{t.name}</span>
-                    </div>
-                    {isActive && <CheckCircle2 className="h-4 w-4 text-primary shrink-0" />}
-                  </div>
-                  <div className="text-[11px] text-muted-foreground mt-1">
-                    {new Date(t.createdAt).toLocaleDateString()}
-                  </div>
-                </button>
-              );
-            })}
-          </div>
-
-          {active && (
-            <div className="space-y-6">
-              <Card className="p-6">
-                <h3 className="text-sm font-semibold mb-3">Live preview</h3>
-                <SignaturePreview template={active.html} employee={sampleEmployee} assets={assets} />
-              </Card>
-
-              <Card className="p-6 space-y-4">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-sm font-semibold">Source</h3>
-                  <div className="flex gap-2">
-                    {editingHtml ? (
-                      <>
-                        <Button size="sm" variant="outline" onClick={() => setEditingHtml("")}>Cancel</Button>
-                        <Button size="sm" onClick={saveEdit}>Save</Button>
-                      </>
-                    ) : (
-                      <>
-                        <Button size="sm" variant="outline" onClick={startEdit}>Edit</Button>
-                        {templates.length > 1 && (
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            onClick={() => {
-                              removeTemplate(active.id);
-                              toast.success("Template deleted");
-                            }}
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        )}
-                      </>
-                    )}
-                  </div>
-                </div>
-                {editingHtml ? (
-                  <div className="space-y-3">
-                    <div>
-                      <Label>Name</Label>
-                      <Input value={editingName} onChange={(e) => setEditingName(e.target.value)} />
-                    </div>
-                    <div>
-                      <Label>HTML</Label>
-                      <Textarea
-                        value={editingHtml}
-                        onChange={(e) => setEditingHtml(e.target.value)}
-                        className="font-mono text-xs min-h-[280px]"
-                      />
-                    </div>
-                  </div>
-                ) : (
-                  <pre className="text-xs bg-muted p-4 rounded-md overflow-auto max-h-72">
-                    <code>{active.html}</code>
-                  </pre>
-                )}
-              </Card>
+        <div className="mx-auto w-full max-w-7xl space-y-6">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+            <div className="min-w-0">
+              <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Templates</h1>
+              <p className="text-sm text-muted-foreground mt-1">
+                Upload HTML or an image. Use placeholders like{" "}
+                <code className="px-1 rounded bg-muted">{"{{name}}"}</code>,{" "}
+                <code className="px-1 rounded bg-muted">{"{{email}}"}</code>.
+              </p>
             </div>
-          )}
+            <div className="shrink-0">
+              <input
+                ref={fileRef}
+                type="file"
+                accept=".html,image/*"
+                hidden
+                onChange={handleFile}
+              />
+              <Button className="w-full sm:w-auto" onClick={() => fileRef.current?.click()}>
+                <Upload className="h-4 w-4 mr-2" /> Upload template
+              </Button>
+            </div>
+          </div>
+
+          <div className="grid min-w-0 gap-6 lg:grid-cols-[minmax(260px,320px)_minmax(0,1fr)]">
+            <div className="min-w-0 space-y-2">
+              {templates.map((t) => {
+                const isImg = t.html.includes("data:image");
+                const Icon = isImg ? ImageIcon : FileCode2;
+                const isActive = active?.id === t.id;
+                return (
+                  <button
+                    key={t.id}
+                    onClick={() => setActiveTemplate(t.id)}
+                    className={`w-full text-left p-4 rounded-lg border transition-all ${
+                      isActive
+                        ? "border-primary bg-accent shadow-sm"
+                        : "border-border bg-card hover:border-primary/50"
+                    }`}
+                  >
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <Icon className="h-4 w-4 shrink-0 text-primary" />
+                        <span className="text-sm font-medium truncate">{t.name}</span>
+                      </div>
+                      {isActive && <CheckCircle2 className="h-4 w-4 text-primary shrink-0" />}
+                    </div>
+                    <div className="text-[11px] text-muted-foreground mt-1">
+                      {new Date(t.createdAt).toLocaleDateString()}
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+
+            {active && (
+              <div className="min-w-0 space-y-6">
+                <Card className="min-w-0 overflow-hidden p-4 sm:p-6">
+                  <h3 className="text-sm font-semibold mb-3">Live preview</h3>
+                  <SignaturePreview
+                    template={active.html}
+                    employee={sampleEmployee}
+                    assets={assets}
+                  />
+                </Card>
+
+                <Card className="min-w-0 space-y-4 overflow-hidden p-4 sm:p-6">
+                  <div className="flex flex-wrap items-center justify-between gap-3">
+                    <h3 className="text-sm font-semibold">Source</h3>
+                    <div className="flex gap-2">
+                      {editingHtml ? (
+                        <>
+                          <Button size="sm" variant="outline" onClick={() => setEditingHtml("")}>
+                            Cancel
+                          </Button>
+                          <Button size="sm" onClick={saveEdit}>
+                            Save
+                          </Button>
+                        </>
+                      ) : (
+                        <>
+                          <Button size="sm" variant="outline" onClick={startEdit}>
+                            Edit
+                          </Button>
+                          {templates.length > 1 && (
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => {
+                                removeTemplate(active.id);
+                                toast.success("Template deleted");
+                              }}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          )}
+                        </>
+                      )}
+                    </div>
+                  </div>
+                  {editingHtml ? (
+                    <div className="space-y-3">
+                      <div>
+                        <Label>Name</Label>
+                        <Input
+                          value={editingName}
+                          onChange={(e) => setEditingName(e.target.value)}
+                        />
+                      </div>
+                      <div>
+                        <Label>HTML</Label>
+                        <Textarea
+                          value={editingHtml}
+                          onChange={(e) => setEditingHtml(e.target.value)}
+                          className="font-mono text-xs min-h-[280px]"
+                        />
+                      </div>
+                    </div>
+                  ) : (
+                    <pre className="max-h-72 max-w-full overflow-auto rounded-md bg-muted p-4 text-xs">
+                      <code>{active.html}</code>
+                    </pre>
+                  )}
+                </Card>
+              </div>
+            )}
+          </div>
         </div>
-      </div>
       </Layout>
     </RequireAuth>
   );
